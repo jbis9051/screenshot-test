@@ -52,6 +52,7 @@
             requestAnimationFrame(() => {
                 setTimeout(async () => {
                     const frame = await imageCapture.grabFrame();
+                    
                     finalCanvasCtx.drawImage(frame,  0,  0);
                     finalCanvas.style.cssText = "position: absolute; top: 0; left: 0; height: 300px";
                     body.appendChild(finalCanvas);
