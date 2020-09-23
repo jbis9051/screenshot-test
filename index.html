@@ -7,13 +7,17 @@
         body {
             height: 100vh;
             width: 100vw;
-            margin: 0;
             padding: 0;
-            cursor: crosshair;
+            margin: 0;
         }
         .square {
-            border: 1px solid white;
-            background: rgba(92, 92, 92, 0.4);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: red;
+            height: 200px;
+            width: 200px;
         }
     </style>
 </head>
@@ -21,79 +25,38 @@
 <button id="start">
     Start
 </button>
+<div class="square"></div>
 <script>
     const body = document.querySelector('body');
+    const square = document.querySelector('.square');
 
     document.querySelector("#start").addEventListener("click", async (e) => {
         e.stopPropagation();
         const stream = await navigator.mediaDevices.getDisplayMedia();
-        console.log(stream);
-        body.addEventListener("mousedown", async e => {
-            const start = {
-                x: e.clientX,
-                y: e.clientY,
-            }
-            const tmpVideo = document.createElement("video");
-            const finalCanvas = document.createElement("canvas");
-            const finalCanvasCtx = finalCanvas.getContext("2d");
 
-            tmpVideo.addEventListener("loadedmetadata", () => {
-                finalCanvas.width = tmpVideo.videoWidth;
-                finalCanvas.height = tmpVideo.videoHeight;
-            });
-            tmpVideo.srcObject = stream;
-            tmpVideo.play();
-            tmpVideo.style.cssText = "position: absolute; top: 0; left: 0; height: 200px";
-          //  body.appendChild(tmpVideo)
+        const tmpVideo = document.createElement("video");
+        const finalCanvas = document.createElement("canvas");
+        const finalCanvasCtx = finalCanvas.getContext("2d");
 
-            const element = document.createElement("div");
-            element.classList.add("square");
-            element.style.position = "fixed";
-            element.style.top = start.y + "px";
-            element.style.left = start.x + "px";
-            body.appendChild(element);
-
-            function move(e) {
-                element.style.width = Math.abs(e.clientX - start.x) + "px";
-                element.style.height = Math.abs(e.clientY - start.y) + "px";
-                element.style.top = Math.min(e.clientY, start.y) + "px";
-                element.style.left = Math.min(e.clientX, start.x) + "px";
-            }
-
-            function takeScreenshot() {
-                finalCanvasCtx.drawImage(tmpVideo,  0,  0);
-                finalCanvas.style.cssText = "position: absolute; top: 0; left: 0;";
-                const imageData = finalCanvasCtx.getImageData(
-                    0,
-                    0,
-                    finalCanvas.width,
-                    finalCanvas.height
-                );
-                body.appendChild(finalCanvas);
-            }
-
-            const leaveEvents = ["mouseup"];
-
-            function end() {
-                element.remove();
-                body.removeEventListener("mousemove", move);
-                leaveEvents.forEach(event => body.removeEventListener(event, end));
-                requestAnimationFrame(() => {
-                    setTimeout(() => {
-                        takeScreenshot()
-                    }, 0);
-                });
-            }
-
-            body.addEventListener("mousemove", move);
-            leaveEvents.forEach(event => {
-                body.addEventListener(event, end);
-            });
+        tmpVideo.addEventListener("loadedmetadata", () => {
+            finalCanvas.width = tmpVideo.videoWidth;
+            finalCanvas.height = tmpVideo.videoHeight;
         });
+        tmpVideo.srcObject = stream;
+
+        await tmpVideo.play();
+
+        setTimeout(() => { // this setTimeout doesn't have to do with the bug, but ensures that the getDisplayMedia() prompt is gone before taking the screenshot
+            square.remove();
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    finalCanvasCtx.drawImage(tmpVideo,  0,  0);
+                    finalCanvas.style.cssText = "position: absolute; top: 0; left: 0; height: 300px";
+                    body.appendChild(finalCanvas);
+                }, 0);
+            });
+        }, 2000)
     });
-
-
-
 </script>
 </body>
 </html>
