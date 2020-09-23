@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            height: 100vh;
+            width: 100vw;
+            padding: 0;
+            margin: 0;
+        }
+        .square {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: red;
+            height: 200px;
+            width: 200px;
+        }
+    </style><!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+        <style>
+            body {
+                height: 100vh;
+                width: 100vw;
+                padding: 0;
+                margin: 0;
+            }
+            .square {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: red;
+                height: 200px;
+                width: 200px;
+            }
+        </style>
+    </head>
+<body>
+<button id="start">
+    Start
+</button>
+<div class="square"></div>
+<script>
+    const body = document.querySelector('body');
+    const square = document.querySelector('.square');
+
+    document.querySelector("#start").addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const stream = await navigator.mediaDevices.getDisplayMedia();
+        const imageCapture = new ImageCapture(stream.getVideoTracks()[0]);
+
+        const tmpVideo = document.createElement("video");
+        const finalCanvas = document.createElement("canvas");
+        const finalCanvasCtx = finalCanvas.getContext("2d");
+
+        tmpVideo.addEventListener("loadedmetadata", () => {
+            finalCanvas.width = tmpVideo.videoWidth;
+            finalCanvas.height = tmpVideo.videoHeight;
+        });
+        tmpVideo.srcObject = stream;
+
+        await tmpVideo.play();
+
+        setTimeout(() => { // this setTimeout doesn't have to do with the bug, but ensures that the getDisplayMedia() prompt is gone before taking the screenshot
+            square.remove();
+            requestAnimationFrame(() => {
+                setTimeout(async () => {
+                    const frame = await imageCapture.grabFrame();
+                    finalCanvasCtx.drawImage(frame,  0,  0);
+                    finalCanvas.style.cssText = "position: absolute; top: 0; left: 0; height: 300px";
+                    body.appendChild(finalCanvas);
+                }, 0);
+            });
+        }, 2000)
+    });
+</script>
+</body>
+</html>
+
+</head>
+<body>
+<button id="start">
+    Start
+</button>
+<div class="square"></div>
+<script>
+    const body = document.querySelector('body');
+    const square = document.querySelector('.square');
+
+    document.querySelector("#start").addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const stream = await navigator.mediaDevices.getDisplayMedia();
+        const imageCapture = new ImageCapture(stream.getVideoTracks()[0]);
+
+        const tmpVideo = document.createElement("video");
+        const finalCanvas = document.createElement("canvas");
+        const finalCanvasCtx = finalCanvas.getContext("2d");
+
+        tmpVideo.addEventListener("loadedmetadata", () => {
+            finalCanvas.width = tmpVideo.videoWidth;
+            finalCanvas.height = tmpVideo.videoHeight;
+        });
+        tmpVideo.srcObject = stream;
+
+        await tmpVideo.play();
+
+        setTimeout(() => { // this setTimeout doesn't have to do with the bug, but ensures that the getDisplayMedia() prompt is gone before taking the screenshot
+            square.remove();
+            requestAnimationFrame(() => {
+                setTimeout(async () => {
+                    const frame = await imageCapture.grabFrame();
+                    finalCanvasCtx.drawImage(frame,  0,  0);
+                    finalCanvas.style.cssText = "position: absolute; top: 0; left: 0; height: 300px";
+                    body.appendChild(finalCanvas);
+                }, 0);
+            });
+        }, 2000)
+    });
+</script>
+</body>
+</html>
